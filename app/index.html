@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leonida Trophy Guide — GTA VI 55 Trophies</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="mark">VI</div>
+    <div>
+      <h1>Leonida Trophy Guide</h1>
+      <p class="sub">Grand Theft Auto VI &middot; PlayStation 5 &middot; 55 trophies, 1 platinum</p>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-line"><span id="progressText">0 of 55 earned</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div id="progressFill"></div></div>
+  </div>
+</header>
+
+<nav class="toolbar" aria-label="Guide controls">
+  <div class="views" role="tablist">
+    <button id="viewChecklist" type="button" class="view-tab active" role="tab">Checklist</button>
+    <button id="viewRoadmap" type="button" class="view-tab" role="tab">Roadmap to Platinum</button>
+  </div>
+  <div class="filters" id="kindFilters">
+    <button type="button" data-kind="all" class="kind-btn active">All</button>
+    <button type="button" data-kind="story" class="kind-btn">Story</button>
+    <button type="button" data-kind="missable" class="kind-btn">Missable</button>
+    <button type="button" data-kind="collectibles" class="kind-btn">Collectibles</button>
+    <button type="button" data-kind="activities" class="kind-btn">Activities</button>
+    <button type="button" data-kind="online" class="kind-btn">Online</button>
+  </div>
+  <label class="grade-filter">Grade
+    <select id="gradeFilter">
+      <option value="all">All grades</option>
+      <option value="platinum">Platinum</option>
+      <option value="gold">Gold</option>
+      <option value="silver">Silver</option>
+      <option value="bronze">Bronze</option>
+    </select>
+  </label>
+  <input id="searchBox" type="search" placeholder="Search trophies…" aria-label="Search trophies">
+  <label class="spoiler-toggle"><input id="spoilerToggle" type="checkbox"> Hide story spoilers</label>
+  <button id="exportBtn" type="button" class="tool-btn">Export progress</button>
+  <label class="tool-btn import-label">Import progress <input id="importFile" type="file" accept="application/json,.json"></label>
+</nav>
+
+<main>
+  <section id="checklistView" class="checklist-layout">
+    <div class="list-col">
+      <p id="filterNote" class="filter-note"></p>
+      <ul id="trophyList" class="trophy-list"></ul>
+    </div>
+    <aside id="detailPanel" class="detail-panel" aria-live="polite">
+      <p class="detail-empty">Select a trophy to read its guide.</p>
+    </aside>
+  </section>
+
+  <section id="roadmapView" class="roadmap-view" hidden>
+    <p class="roadmap-intro">The road to the platinum in five stages. Play the story first, then the stranger strands, then sweep Leonida for collectibles, then grind the activities — and save 100% completion for last. <strong>Two trophies can be missed:</strong> they are flagged below.</p>
+    <div id="roadmapStages"></div>
+  </section>
+</main>
+
+<footer>
+  <p>Guides are written in our own words for this guide. Facts are drawn from the official PlayStation trophy list as published, and from the Exophase GTA 6 trophy guide and the PSNProfiles GTA 6 Trophy Guide — each trophy's guide names its source beside it. Works fully offline; progress is stored only in your browser.</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
