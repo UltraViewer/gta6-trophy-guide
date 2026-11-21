@@ -1,73 +1,55 @@
-// tracker.js — earned state: localStorage persistence, export to file, import back.
-const STORAGE_KEY = "gta6-trophy-guide-progress";
+// Earned-trophy state for the Leonida Trophy Guide: kept in the browser's
+// localStorage, exportable to a file and importable back.
+export const STORAGE_KEY = 'leonida-trophy-guide-earned-v1';
 
-export class TrophyTracker {
-  constructor(total) {
-    this.total = total;
-    this.earned = new Set(this.loadStoredIds());
+export function loadEarned() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return new Set();
+    const ids = JSON.parse(raw);
+    if (!Array.isArray(ids)) return new Set();
+    return new Set(ids.filter((n) => Number.isInteger(n) && n >= 1 && n <= 55));
+  } catch {
+    return new Set();
   }
+}
 
-  loadStoredIds() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed.filter((id) => Number.isInteger(id)) : [];
-    } catch {
-      return [];
-    }
-  }
+export function saveEarned(earned) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...earned].sort((a, b) => a - b)));
+}
 
-  save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...this.earned].sort((a, b) => a - b)));
-  }
+export function toggleEarned(earned, id) {
+  if (earned.has(id)) earned.delete(id);
+  else earned.add(id);
+  saveEarned(earned);
+  return earned;
+}
 
-  isEarned(id) {
-    return this.earned.has(id);
-  }
+export function exportProgress(earned) {
+  const payload = {
+    app: 'leonida-trophy-guide',
+    exportedAt: new Date().toISOString(),
+    earned: [...earned].sort((a, b) => a - b),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'leonida-trophies-progress.json';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 
-  toggle(id) {
-    if (this.earned.has(id)) this.earned.delete(id);
-    else this.earned.add(id);
-    this.save();
-  }
+export function parseProgressFile(text) {
+  const data = JSON.parse(text);
+  const ids = Array.isArray(data) ? data : data.earned;
+  if (!Array.isArray(ids)) throw new Error('No earned list found in file');
+  return new Set(ids.filter((n) => Number.isInteger(n) && n >= 1 && n <= 55));
+}
 
-  setEarned(ids) {
-    this.earned = new Set(ids.filter((id) => Number.isInteger(id) && id >= 1 && id <= this.total));
-    this.save();
-  }
-
-  earnedCount() {
-    return this.earned.size;
-  }
-
-  earnedPercent() {
-    return this.total ? Math.round((this.earned.size / this.total) * 100) : 0;
-  }
-
-  exportToFile() {
-    const payload = {
-      app: "leonida-trophy-guide",
-      exportedAt: new Date().toISOString(),
-      earned: [...this.earned].sort((a, b) => a - b),
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "gta6-trophy-progress.json";
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-
-  async importFromFile(file) {
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    const ids = Array.isArray(parsed) ? parsed : parsed.earned;
-    if (!Array.isArray(ids)) throw new Error("Progress file has no earned list.");
-    this.setEarned(ids);
-    return this.earned.size;
-  }
+export function resetProgress() {
+  localStorage.removeItem(STORAGE_KEY);
+  return new Set();
 }
