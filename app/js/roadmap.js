@@ -1,104 +1,74 @@
-// roadmap.js — the five stages to the platinum, built from the official
-// descriptions: story first, then stranger strands, then collectibles,
-// then the activity grinds, and 100% completion last.
-export const ROADMAP_STAGES = [
+// The five-stage roadmap to the platinum, built from the official
+// descriptions: story first, then contacts, activities, collectibles,
+// and the 100% cleanup last. The missable trophies all live in stage 1.
+export const STAGES = [
   {
     stage: 1,
-    title: "Stage 1 — Play the story",
+    title: 'Play the story',
     blurb:
-      "Finish Chapters 1–4 and the final mission, plus every named story mission. Two trophies here can be missed — keep a save before major story choices.",
-    trophyNames: [
-      "Just Like Paradise",
-      "Paradise Lost",
-      "T**s Ass Drug Money",
-      "Vice City, Baby!",
-      "Top Of The World, Ma",
-      "You Gotta Know When to Get Off",
-      "Trust",
-      "Break the Bank",
-      "Family Matters",
-      "DWNFALL",
-      "Hi-Jacked",
-      "Snow Storm",
-      "Actions Speak Louder",
-      "Bad Luck, I Guess",
-    ],
+      'Chapters 1 to 4, the final mission, and every mission trophy. The seven missable moments all happen here — the cocktail on Ocean Beach, the showroom exit, the bowling alley follow-through, the VCIA departure and the story choices — so take them while they are in front of you.',
   },
   {
     stage: 2,
-    title: "Stage 2 — Strangers and side missions",
+    title: 'Contacts and strangers',
     blurb:
-      "Work the stranger mission strands to their finales and try each activity type once. The five stranger finals count toward the 8 strands.",
-    trophyNames: [
-      "Road to Rehabilitation",
-      "This Was No Boat Accident",
-      "The Lone Rider",
-      "Supply & Demand",
-      "Spin On This!",
-      "Strangers & Freaks",
-      "Master of None",
-      "Stick Fiddler",
-      "In The Beginning…",
-      "Let’s Go Bowling",
-    ],
+      'Finish the contact strands for Andy, Kenton, Billy, Randy and Tyrone, complete 8 stranger strands across Leonida, and earn the two partner trophies with your partner beside you.',
   },
   {
     stage: 3,
-    title: "Stage 3 — Explore Leonida and collect",
+    title: 'Activities and skills',
     blurb:
-      "Sweep the map: every region, the card sets, the WAiNK spots, meditation spots, vehicles, garages and the Scooter Bros registrations.",
-    trophyNames: [
-      "The Goodtime State",
-      "Whip It Good",
-      "Don't Touch My Deck",
-      "You WAiNKer!",
-      "Positive Mental Attitude",
-      "Fair Game",
-      "The Truth Is Out There",
-      "Little Boxes",
-      "On the Spot",
-    ],
+      'Stunts, races, the shooting range, fishing, arcade games, challenges, robberies and the money trophies. Everything here is repeatable, so work through it at your own pace after the story.',
   },
   {
     stage: 4,
-    title: "Stage 4 — Activities, combat and money",
+    title: 'Collectibles and exploration',
     blurb:
-      "The long grinds: 250 stunts, 42 gold Shooting Range medals, races, robberies, Combat Focus kills and the money trophies.",
-    trophyNames: [
-      "Cunning Stunts",
-      "The Shootist",
-      "Top Fun",
-      "Earn Cash, Not Kudos",
-      "Baited My Tackle",
-      "One Last Thing",
-      "Hot Together",
-      "Retail Therapy",
-      "Gunslinger",
-      "Catch Me If You Can",
-      "Challenging Tank",
-      "Sneakthief",
-      "Maximum Withdrawal",
-      "A Classic Blitz Play",
-      "Pest Control",
-      "Capital Offense",
-      "Personal Best",
-      "Ten Pin",
-      "Dime on the Dollar",
-      "Treat Yo Self",
-    ],
+      'Meditation spots, card sets, WAiNK locations, vehicles, garages, the Scooter Bros registrations and exploring every corner of Leonida.',
   },
   {
     stage: 5,
-    title: "Stage 5 — 100% and the platinum",
-    blurb: "When everything else is done, 100% completion unlocks — and with it, the platinum.",
-    trophyNames: ["A Long Road", "Vice Got a Price!"],
+    title: '100% and the platinum',
+    blurb:
+      'Clean up whatever the in-game stats still show below 100%, earn A Long Road, and the platinum — Vice Got a Price! — pops on its own.',
   },
 ];
 
-export function stageTrophies(stage, trophiesByName) {
-  return stage.trophyNames.map((name) => trophiesByName.get(name)).filter(Boolean);
+export function trophiesForStage(trophies, stage) {
+  return trophies.filter((t) => t.roadmap_stage === stage).sort((a, b) => a.id - b.id);
 }
 
-export function countMissableInStage(stage, trophiesByName) {
-  return stageTrophies(stage, trophiesByName).filter((t) => t.missable).length;
+export function renderRoadmap(container, trophies, earned, isHiddenBySpoiler, spoilerOn) {
+  container.replaceChildren();
+  for (const s of STAGES) {
+    const items = trophiesForStage(trophies, s.stage);
+    const done = items.filter((t) => earned.has(t.id)).length;
+    const li = document.createElement('li');
+    li.className = 'stage';
+    const h = document.createElement('h3');
+    h.textContent = `Stage ${s.stage}: ${s.title} `;
+    const count = document.createElement('span');
+    count.className = 'stage-count';
+    count.textContent = `(${done}/${items.length} earned)`;
+    h.appendChild(count);
+    const p = document.createElement('p');
+    p.textContent = s.blurb;
+    const ul = document.createElement('ul');
+    ul.className = 'stage-trophies';
+    for (const t of items) {
+      const chip = document.createElement('li');
+      const hidden = isHiddenBySpoiler(t, earned, spoilerOn);
+      chip.textContent = hidden ? 'Hidden trophy' : t.name;
+      if (t.missable) {
+        const flag = document.createElement('span');
+        flag.className = 'flag-miss';
+        flag.textContent = ' ⚠ missable';
+        chip.appendChild(flag);
+      }
+      if (earned.has(t.id)) chip.classList.add('done');
+      ul.appendChild(chip);
+    }
+    li.append(h, p, ul);
+    container.appendChild(li);
+  }
 }
