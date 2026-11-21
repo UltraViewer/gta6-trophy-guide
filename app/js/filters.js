@@ -1,37 +1,26 @@
-// filters.js — kind / grade / search filtering and the spoiler setting.
-// The spoiler setting hides the names and descriptions of story trophies
-// until they are earned, so a player can browse the guide without story spoilers.
-export const KINDS = ["all", "story", "missable", "collectibles", "activities", "online"];
+// Filtering for the trophy checklist: by kind, by grade, by text search,
+// and the spoiler setting that hides unrevealed story trophies.
+export const KINDS = ['story', 'missable', 'collectibles', 'activities', 'online'];
 
-export function trophyMatchesKind(trophy, kind) {
-  if (kind === "all") return true;
-  if (kind === "missable") return trophy.missable === true;
-  return trophy.kind === kind;
+export function createFilterState() {
+  return { kind: 'all', grade: 'all', query: '', spoiler: false };
 }
 
-export function trophyMatchesGrade(trophy, grade) {
-  return grade === "all" || trophy.grade === grade;
+export function isStoryTrophy(trophy) {
+  return trophy.kind === 'story' || trophy.kind === 'missable';
 }
 
-export function trophyMatchesSearch(trophy, query) {
-  if (!query) return true;
-  const hay = `${trophy.name} ${trophy.description} ${trophy.guide}`.toLowerCase();
-  return hay.includes(query.toLowerCase());
+export function isHiddenBySpoiler(trophy, earned, spoilerOn) {
+  return spoilerOn && isStoryTrophy(trophy) && !earned.has(trophy.id);
 }
 
-export function applyFilters(trophies, { kind, grade, query }) {
-  return trophies.filter(
-    (t) => trophyMatchesKind(t, kind) && trophyMatchesGrade(t, grade) && trophyMatchesSearch(t, query),
-  );
-}
-
-export function isSpoilerHidden(trophy, spoilerOn, isEarned) {
-  return spoilerOn && trophy.kind === "story" && !isEarned;
-}
-
-export function spoilerPlaceholder() {
-  return {
-    name: "??? — Hidden story trophy",
-    description: "Spoiler setting is on. Earn this trophy to reveal its name and description.",
-  };
+export function trophyMatches(trophy, state) {
+  if (state.kind !== 'all' && trophy.kind !== state.kind) return false;
+  if (state.grade !== 'all' && trophy.grade !== state.grade) return false;
+  if (state.query) {
+    const q = state.query.toLowerCase();
+    const hay = `${trophy.name} ${trophy.description}`.toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
 }
